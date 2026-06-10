@@ -1,3 +1,4 @@
+#include <dt-bindings/gpio/gpio.h>
 / {
     chosen {
         zmk,kscan = &kscan0;
@@ -17,10 +18,11 @@
                       <&xiao_d 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
     };
 };
-
+#include <dt-bindings/led/led.h>
 &spi0 {
     compatible = "nordic,nrf-spim";
     status = "okay";
+    
     led_strip: ws2812@0 {
         compatible = "worldsemi,ws2812-spi";
         label = "WS2812";
