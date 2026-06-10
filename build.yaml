@@ -1,2 +1,4 @@
-- board: xiao_ble
-  shield: mein_adapter
+---
+include:
+  - board: xiao_ble
+    shield: mein_adapter
