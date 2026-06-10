@@ -1,0 +1,4 @@
+if SHIELD_BARSCH
+config ZMK_KEYBOARD_NAME
+default "Barsch Adaptive Controller"
+endif
