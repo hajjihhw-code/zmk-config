@@ -10,28 +10,47 @@
     kscan0: kscan {
         compatible = "zmk,kscan-gpio-direct";
         label = "KSCAN";
+        /* D0-D4 = Taster, D7 & D9 = BT/Layer-Taster */
         input-gpios = <&xiao_d 0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
-                      <&xiao_d 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+                      <&xiao_d 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+    };
+};
+
+/* SPI Konfiguration für NeoPixel auf D8 und D10 */
+&pinctrl {
+    spi0_default: spi0_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,    /* D8 */
+                    <NRF_PSEL(SPIM_MOSI, 0, 10)>;  /* D10 */
+        };
+    };
+    spi0_sleep: spi0_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
+                    <NRF_PSEL(SPIM_MOSI, 0, 10)>;
+            low-power-enable;
+        };
     };
 };
 
 &spi0 {
     compatible = "nordic,nrf-spim";
     status = "okay";
-    sck-pin = <9>;
-    mosi-pin = <10>;
-    miso-pin = <11>;
+    pinctrl-0 = <&spi0_default>;
+    pinctrl-1 = <&spi0_sleep>;
+    pinctrl-names = "default", "sleep";
+    cs-gpios = <0>;
 
     led_strip: ws2812@0 {
         compatible = "worldsemi,ws2812-spi";
         label = "WS2812";
-        /* SPI-bus wird über das SPI-Interface gesteuert, kein in-gpios nötig */
+        spi-bus = <0>;
         chain-length = <2>;
-        color-mapping = <0x010203>; /* GRB Hard-coded als Hex zur Fehlervermeidung */
+        color-mapping = <0x010203>; /* GRB Hard-coded */
     };
 };
