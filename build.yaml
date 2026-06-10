@@ -1,4 +1,4 @@
 ---
 include:
   - board: xiao_ble
-    shield: mein_adapter
+    shield: barsch
