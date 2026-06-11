@@ -44,12 +44,18 @@
     pinctrl-0 = <&spi0_default>;
     pinctrl-1 = <&spi0_sleep>;
     pinctrl-names = "default", "sleep";
-    /* cs-gpios wurde entfernt, da für NeoPixel nicht benötigt */
 
     led_strip: ws2812@0 {
         compatible = "worldsemi,ws2812-spi";
         label = "WS2812";
         spi-bus = <0>;
+        reg = <0>; /* Erforderlich für die Adressierung auf dem Bus */
+        spi-max-frequency = <4000000>; /* Läuft stabil auf 4 MHz */
+
+        /* Die vom Compiler geforderten exakten Timing-Werte für WS2812-Protokoll */
+        spi-one-frame = <0x70>;
+        spi-zero-frame = <0x40>;
+
         chain-length = <2>;
         color-mapping = <0x010203>; /* GRB Hard-coded */
     };
