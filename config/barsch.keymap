@@ -4,69 +4,33 @@
 #include <dt-bindings/zmk/bt.h>
 
 / {
-    /* -------------------------------------------------------------------------
-       MAKROS: Verpacken die Bluetooth-Befehle sauber für das Hold-Tap-System
-       ------------------------------------------------------------------------- */
-    macros {
-        /* Makro für kurzes Tippen: Aktiviert das Bluetooth-Profil 0 */
-        bt_sel_0_macro: bt_sel_0_macro {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&bt BT_SEL 0>;
-        };
-
-        /* Makro für langes Halten: Löscht den aktuellen Bluetooth-Speicher */
-        bt_clr_macro: bt_clr_macro {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&bt BT_CLR>;
-        };
-    };
-
-    /* -------------------------------------------------------------------------
-       CUSTOM BEHAVIORS: Verbindet Halten und Tippen auf einer Taste
-       ------------------------------------------------------------------------- */
-    behaviors {
-        bt_pair_reset: bt_pair_reset {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <0>;
-            flavor = "hold-preferred";
-            tapping-term-ms = <500>; /* 500 Millisekunden halten für Reset */
-            /* FIX: Keine Kommas oder getrennten Klammern. Beide Makros stehen 
-               sauber getrennt durch ein Leerzeichen in einem gemeinsamen Block. */
-            bindings = <&bt_clr_macro &bt_sel_0_macro>; 
-        };
-    };
-
-    /* -------------------------------------------------------------------------
-       KEYMAP: Deine Ebenen-Struktur (Pins im Array: [D0, D1, D2, D3, D4, D7, D9])
-       ------------------------------------------------------------------------- */
     keymap {
         compatible = "zmk,keymap";
 
-        /* Ebene 0: Standard-Modus beim Starten */
+        /* Ebene 0: Standard-Modus beim Starten 
+           Pins im Array: [D0, D1, D2, D3, D4, D7, D9] */
         default_layer {
             bindings = <
-                &kp N1            /* Taste 1 (D0): Schreibt '1' */
-                &kp N2            /* Taste 2 (D1): Schreibt '2' */
-                &kp N3            /* Taste 3 (D2): Schreibt '3' */
-                &kp N4            /* Taste 4 (D3): Schreibt '4' */
-                &kp N5            /* Taste 5 (D4): Schreibt '5' */
-                &tog 1            /* Taste 6 (D7): TOGGLE -> Einmal drücken schaltet Ebene 1 EIN */
-                &bt_pair_reset    /* Taste 7 (D9): Tippen = Pairing / Halten = BT Speicher löschen */
+                &kp N1          /* Taste 1 (D0): Schreibt '1' */
+                &kp N2          /* Taste 2 (D1): Schreibt '2' */
+                &kp N3          /* Taste 3 (D2): Schreibt '3' */
+                &kp N4          /* Taste 4 (D3): Schreibt '4' */
+                &kp N5          /* Taste 5 (D4): Schreibt '5' */
+                &tog 1          /* Taste 6 (D7): SWITCH -> Einmal drücken schaltet Ebene 1 EIN */
+                &bt BT_SEL 0    /* Taste 7 (D9): PAIRING -> Einmal drücken aktiviert Bluetooth & sucht PC/Handy */
             >;
         };
 
-        /* Ebene 1: Deine Funktionsebene (Bleibt aktiv, bis D7 erneut gedrückt wird) */
+        /* Ebene 1: Deine Funktionsebene (Aktiv, nachdem du D7 einmal gedrückt hast) */
         function_layer {
             bindings = <
-                &kp F1            /* Taste 1 (D0): Zweitfunktion -> Schreibt 'F1' */
-                &kp F2            /* Taste 2 (D1): Zweitfunktion -> Schreibt 'F2' */
-                &kp F3            /* Taste 3 (D2): Zweitfunktion -> Schreibt 'F3' */
-                &kp F4            /* Taste 4 (D3): Zweitfunktion -> Schreibt 'F4' */
-                &kp F5            /* Taste 5 (D4): Zweitfunktion -> Schreibt 'F5' */
-                &tog 1            /* Taste 6 (D7): TOGGLE -> Einmal drücken schaltet Ebene 1 wieder AUS */
-                &bootloader       /* Taste 7 (D9): Bringt dich direkt in den Flash-Modus (USB-Laufwerk öffnet sich) */
+                &kp F1          /* Taste 1 (D0): Zweitfunktion -> Schreibt 'F1' */
+                &kp F2          /* Taste 2 (D1): Zweitfunktion -> Schreibt 'F2' */
+                &kp F3          /* Taste 3 (D2): Zweitfunktion -> Schreibt 'F3' */
+                &kp F4          /* Taste 4 (D3): Zweitfunktion -> Schreibt 'F4' */
+                &kp F5          /* Taste 5 (D4): Zweitfunktion -> Schreibt 'F5' */
+                &tog 1          /* Taste 6 (D7): SWITCH -> Einmal drücken schaltet Ebene 1 wieder AUS */
+                &bt BT_CLR      /* Taste 7 (D9): RESET -> Löscht die Bluetooth-Verbindung komplett für ein neues Gerät */
             >;
         };
     };
