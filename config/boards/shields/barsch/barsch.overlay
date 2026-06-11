@@ -5,14 +5,18 @@
 
 / {
     chosen {
+        /* Verknüpft die Hardware-Pins mit dem ZMK-Tastatur-Scanner */
         zmk,kscan = &kscan0;
+        /* Definiert die WS2812-LEDs als Ziel für die RGB-Unterbeleuchtung */
         zmk,underglow = &led_strip;
+        /* Verknüpft das physische Layout (wichtig für ZMK Studio) */
         zmk,physical-layout = &default_layout;
     };
 
     kscan0: kscan {
         compatible = "zmk,kscan-gpio-direct";
-        /* D0-D4 = Taster, D7 & D9 = BT/Layer-Taster */
+        /* Direktes Pin-Mapping für deine 7 Taster am Xiao BLE:
+           D0 bis D4 sind die Haupttaster, D7 und D9 für BT/Layer */
         input-gpios = <&xiao_d 0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
@@ -22,7 +26,19 @@
                       <&xiao_d 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
     };
 
-    /* Mappt die 7 direkten Pins in eine virtuelle Reihe für ZMK Studio */
+    /* HINWEIS ZUM 5V-BETRIEB: 
+       Da du die NeoPixel direkt an 5V (USB-Strom) hängst, kann ZMK den Strom 
+       per Software nicht physisch abschalten. Dieser Block MUSS hier trotzdem 
+       stehen, da der RGB-Code von ZMK zwingend nach einem "ext-power"-Knoten 
+       sucht. Er dient hier als "Dummy", damit der Compiler fehlerfrei baut. 
+       Wir nutzen dafür den internen Pin des Xiao, der sonst die 3.3V-Schiene kappt. */
+    ext_power: ext-power {
+        compatible = "zmk,ext-power-generic";
+        control-gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
+    };
+
+    /* Mappt deine 7 direkten Pins in eine virtuelle Matrix-Reihe (1 Reihe, 7 Spalten).
+       Das sorgt dafür, dass ZMK die Taster intern sauber verarbeiten kann. */
     direct_transform: direct_transform {
         compatible = "zmk,matrix-transform";
         columns = <7>;
@@ -32,7 +48,8 @@
         >;
     };
 
-    /* Das vom Compiler geforderte physische Layout mit Key-Koordinaten */
+    /* Das physische Layout für ZMK Studio. Es teilt der GUI mit, wo die 
+       Tasten optisch liegen (Koordinaten in Mikrometer, 100x100 entspricht 1U). */
     default_layout: default_layout {
         compatible = "zmk,physical-layout";
         display-name = "Default Layout";
@@ -50,23 +67,25 @@
     };
 };
 
-/* SPI Konfiguration für NeoPixel auf D8 und D10 */
+/* SPI-Pin-Konfiguration für die Datenleitung der NeoPixel.
+   Wir senden die Daten über den Pin D10 (MOSI) raus. Pin D8 (SCK) läuft leer mit. */
 &pinctrl {
     spi0_default: spi0_default {
         group1 {
-            psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,    /* D8 */
-                    <NRF_PSEL(SPIM_MOSI, 0, 10)>;  /* D10 */
+            psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,    /* D8  */
+                    <NRF_PSEL(SPIM_MOSI, 0, 10)>;  /* D10 (Datenleitung zu DI der LED) */
         };
     };
     spi0_sleep: spi0_sleep {
         group1 {
             psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
                     <NRF_PSEL(SPIM_MOSI, 0, 10)>;
-            low-power-enable;
+            low-power-enable; /* Stromsparen für die Datenleitung im Sleep-Modus */
         };
     };
 };
 
+/* Der SPI-Treiber, der das exakte Protokoll für die WS2812-LEDs erzeugt */
 &spi0 {
     compatible = "nordic,nrf-spim";
     status = "okay";
@@ -80,7 +99,7 @@
         spi-max-frequency = <4000000>;
         spi-one-frame = <0x70>;
         spi-zero-frame = <0x40>;
-        chain-length = <2>;
-        color-mapping = <0x010203>;
+        chain-length = <2>;      /* Du hast 2 NeoPixel verbaut */
+        color-mapping = <0x010203>; /* Standard GRB Farb-Reihenfolge für WS2812 */
     };
 };
