@@ -1,3 +1,0 @@
-config SHIELD_BARSCH
-def_bool $(shields_list_contain,barsch)
-
