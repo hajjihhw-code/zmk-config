@@ -1,47 +1,73 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
-#include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/rgb.h>
+#include <dt-bindings/zmk/bt.h>
 
 / {
+    /* -------------------------------------------------------------------------
+       MAKROS: Verpacken die Bluetooth-Befehle, damit das Hold-Tap-System 
+       sie ohne Kompilerfehler sauber unterscheiden und ausführen kann.
+       ------------------------------------------------------------------------- */
     macros {
-        // Hilfs-Macro: Wählt Bluetooth Profil 0 aus
-        macro_bt_sel_0: macro_bt_sel_0 {
+        /* Makro für kurzes Tippen: Aktiviert das Bluetooth-Profil 0 */
+        bt_sel_0_macro: bt_sel_0_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             bindings = <&bt BT_SEL 0>;
         };
 
-        // Hilfs-Macro: Löscht die aktuelle Bluetooth-Verbindung
-        macro_bt_clr: macro_bt_clr {
+        /* Makro für langes Halten: Löscht den Bluetooth-Speicher */
+        bt_clr_macro: bt_clr_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             bindings = <&bt BT_CLR>;
         };
     };
 
+    /* -------------------------------------------------------------------------
+       CUSTOM BEHAVIORS: Hier fusionieren wir die beiden Makros auf eine Taste.
+       ------------------------------------------------------------------------- */
     behaviors {
-        // Das vom Compiler erzwungene Hold-Tap Verhalten
-        bt_hold_clear: bt_hold_clear {
+        bt_pair_reset: bt_pair_reset {
             compatible = "zmk,behavior-hold-tap";
-            label = "BT_HOLD_CLEAR";
-            #binding-cells = <2>; // Zwingend auf 2 gesetzt, um die Zephyr-Regel zu erfüllen
+            #binding-cells = <0>;
             flavor = "hold-preferred";
-            tapping-term-ms = <200>;
-            bindings = <&macro_bt_clr>, <&macro_bt_sel_0>;
+            tapping-term-ms = <500>; /* 500ms halten, damit du nicht versehentlich alles löschst */
+            bindings = <&bt_clr_macro>, <&bt_sel_0_macro>; /* REIHENFOLGE: <HOLD>, <TAP> */
         };
     };
 
+    /* -------------------------------------------------------------------------
+       KEYMAP: Deine Ebenen-Struktur (Pins im Array: [D0, D1, D2, D3, D4, D7, D9])
+       ------------------------------------------------------------------------- */
     keymap {
         compatible = "zmk,keymap";
 
+        /* Ebene 0: Standard-Modus beim Starten */
         default_layer {
-            // Genau 7 Bindings für deine 7 Hardware-Taster.
-            // Die '0 0' am Ende sind die Dummy-Werte, die die 2 Binding-Cells bedienen.
             bindings = <
-                &kp N1       &kp N2       &kp N3       &kp N4 
-                &kp N5       &kp N6       &bt_hold_clear 0 0
+                &kp N1            /* Taste 1 (D0): Schreibt '1' */
+                &kp N2            /* Taste 2 (D1): Schreibt '2' */
+                &kp N3            /* Taste 3 (D2): Schreibt '3' */
+                &kp N4            /* Taste 4 (D3): Schreibt '4' */
+                &kp N5            /* Taste 5 (D4): Schreibt '5' */
+                &tog 1            /* Taste 6 (D7): TOGGLE -> Einmal drücken schaltet Ebene 1 EIN */
+                &bt_pair_reset    /* Taste 7 (D9): KLICK = Pairing starten / HALTEN (0.5s) = BT Speicher löschen */
+            >;
+        };
+
+        /* Ebene 1: Deine Funktionsebene (Bleibt aktiv, bis du D7 erneut drückst) */
+        function_layer {
+            bindings = <
+                &kp F1            /* Taste 1 (D0): Zweitfunktion -> Schreibt 'F1' */
+                &kp F2            /* Taste 2 (D1): Zweitfunktion -> Schreibt 'F2' */
+                &kp F3            /* Taste 3 (D2): Zweitfunktion -> Schreibt 'F3' */
+                &kp F4            /* Taste 4 (D3): Zweitfunktion -> Schreibt 'F4' */
+                &kp F5            /* Taste 5 (D4): Zweitfunktion -> Schreibt 'F5' */
+                &tog 1            /* Taste 6 (D7): TOGGLE -> Einmal drücken schaltet Ebene 1 wieder AUS */
+                &bootloader       /* Taste 7 (D9): Bringt dich direkt in den Flash-Modus (USB-Laufwerk öffnet sich) */
             >;
         };
     };
+};
 };
