@@ -26,19 +26,14 @@
                       <&xiao_d 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
     };
 
-    /* HINWEIS ZUM 5V-BETRIEB: 
-       Da du die NeoPixel direkt an 5V (USB-Strom) hängst, kann ZMK den Strom 
-       per Software nicht physisch abschalten. Dieser Block MUSS hier trotzdem 
-       stehen, da der RGB-Code von ZMK zwingend nach einem "ext-power"-Knoten 
-       sucht. Er dient hier als "Dummy", damit der Compiler fehlerfrei baut. 
-       Wir nutzen dafür den internen Pin des Xiao, der sonst die 3.3V-Schiene kappt. */
-    ext_power: ext-power {
+    /* FIX: Label von 'ext_power' zu 'ext_power_hardware' geändert, 
+       um den Konflikt mit den internen ZMK-Keymap-Befehlen zu lösen. */
+    ext_power_hardware: ext-power {
         compatible = "zmk,ext-power-generic";
         control-gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
     };
 
-    /* Mappt deine 7 direkten Pins in eine virtuelle Matrix-Reihe (1 Reihe, 7 Spalten).
-       Das sorgt dafür, dass ZMK die Taster intern sauber verarbeiten kann. */
+    /* Mappt deine 7 direkten Pins in eine virtuelle Matrix-Reihe (1 Reihe, 7 Spalten). */
     direct_transform: direct_transform {
         compatible = "zmk,matrix-transform";
         columns = <7>;
@@ -48,8 +43,7 @@
         >;
     };
 
-    /* Das physische Layout für ZMK Studio. Es teilt der GUI mit, wo die 
-       Tasten optisch liegen (Koordinaten in Mikrometer, 100x100 entspricht 1U). */
+    /* Das physische Layout für ZMK Studio (Koordinaten in Mikrometer) */
     default_layout: default_layout {
         compatible = "zmk,physical-layout";
         display-name = "Default Layout";
@@ -67,8 +61,7 @@
     };
 };
 
-/* SPI-Pin-Konfiguration für die Datenleitung der NeoPixel.
-   Wir senden die Daten über den Pin D10 (MOSI) raus. Pin D8 (SCK) läuft leer mit. */
+/* SPI-Pin-Konfiguration für die Datenleitung der NeoPixel (D10 / MOSI) */
 &pinctrl {
     spi0_default: spi0_default {
         group1 {
@@ -80,12 +73,12 @@
         group1 {
             psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
                     <NRF_PSEL(SPIM_MOSI, 0, 10)>;
-            low-power-enable; /* Stromsparen für die Datenleitung im Sleep-Modus */
+            low-power-enable;
         };
     };
 };
 
-/* Der SPI-Treiber, der das exakte Protokoll für die WS2812-LEDs erzeugt */
+/* Der SPI-Treiber für das WS2812-Protokoll */
 &spi0 {
     compatible = "nordic,nrf-spim";
     status = "okay";
@@ -99,7 +92,7 @@
         spi-max-frequency = <4000000>;
         spi-one-frame = <0x70>;
         spi-zero-frame = <0x40>;
-        chain-length = <2>;      /* Du hast 2 NeoPixel verbaut */
-        color-mapping = <0x010203>; /* Standard GRB Farb-Reihenfolge für WS2812 */
+        chain-length = <2>;
+        color-mapping = <0x010203>;
     };
 };
