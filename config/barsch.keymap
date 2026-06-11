@@ -21,13 +21,11 @@
     };
 
     behaviors {
-        // Das korrigierte Hold-Tap Verhalten
-        // Halten = Bluetooth löschen (Clear)
-        // Tippen = Zu Profil 0 wechseln
+        // Das vom Compiler erzwungene Hold-Tap Verhalten
         bt_hold_clear: bt_hold_clear {
             compatible = "zmk,behavior-hold-tap";
             label = "BT_HOLD_CLEAR";
-            #binding-cells = <0>; 
+            #binding-cells = <2>; // Zwingend auf 2 gesetzt, um die Zephyr-Regel zu erfüllen
             flavor = "hold-preferred";
             tapping-term-ms = <200>;
             bindings = <&macro_bt_clr>, <&macro_bt_sel_0>;
@@ -38,12 +36,11 @@
         compatible = "zmk,keymap";
 
         default_layer {
-            // Da du in der barsch.overlay genau 7 Taster definiert hast,
-            // müssen hier exakt 7 Bindings stehen.
-            // Du kannst die '&kp ...' Werte jederzeit nach deinen Wünschen ändern!
+            // Genau 7 Bindings für deine 7 Hardware-Taster.
+            // Die '0 0' am Ende sind die Dummy-Werte, die die 2 Binding-Cells bedienen.
             bindings = <
                 &kp N1       &kp N2       &kp N3       &kp N4 
-                &kp N5       &kp N6       &bt_hold_clear
+                &kp N5       &kp N6       &bt_hold_clear 0 0
             >;
         };
     };
