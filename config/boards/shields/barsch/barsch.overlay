@@ -5,18 +5,13 @@
 
 / {
     chosen {
-        /* Verknüpft die Hardware-Pins mit dem ZMK-Tastatur-Scanner */
         zmk,kscan = &kscan0;
-        /* Definiert die WS2812-LEDs als Ziel für die RGB-Unterbeleuchtung */
         zmk,underglow = &led_strip;
-        /* Verknüpft das physische Layout (wichtig für ZMK Studio) */
         zmk,physical-layout = &default_layout;
     };
 
     kscan0: kscan {
         compatible = "zmk,kscan-gpio-direct";
-        /* Direktes Pin-Mapping für deine 7 Taster am Xiao BLE:
-           D0 bis D4 sind die Haupttaster, D7 und D9 für BT/Layer */
         input-gpios = <&xiao_d 0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
                       <&xiao_d 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>,
@@ -26,14 +21,12 @@
                       <&xiao_d 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
     };
 
-    /* FIX: Label von 'ext_power' zu 'ext_power_hardware' geändert, 
-       um den Konflikt mit den internen ZMK-Keymap-Befehlen zu lösen. */
+    /* Das Label wurde hier zu 'ext_power_hardware' geändert, um den ZMK-Fehler zu beheben */
     ext_power_hardware: ext-power {
         compatible = "zmk,ext-power-generic";
         control-gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
     };
 
-    /* Mappt deine 7 direkten Pins in eine virtuelle Matrix-Reihe (1 Reihe, 7 Spalten). */
     direct_transform: direct_transform {
         compatible = "zmk,matrix-transform";
         columns = <7>;
@@ -43,7 +36,6 @@
         >;
     };
 
-    /* Das physische Layout für ZMK Studio (Koordinaten in Mikrometer) */
     default_layout: default_layout {
         compatible = "zmk,physical-layout";
         display-name = "Default Layout";
@@ -61,12 +53,11 @@
     };
 };
 
-/* SPI-Pin-Konfiguration für die Datenleitung der NeoPixel (D10 / MOSI) */
 &pinctrl {
     spi0_default: spi0_default {
         group1 {
-            psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,    /* D8  */
-                    <NRF_PSEL(SPIM_MOSI, 0, 10)>;  /* D10 (Datenleitung zu DI der LED) */
+            psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
+                    <NRF_PSEL(SPIM_MOSI, 0, 10)>;
         };
     };
     spi0_sleep: spi0_sleep {
@@ -78,7 +69,6 @@
     };
 };
 
-/* Der SPI-Treiber für das WS2812-Protokoll */
 &spi0 {
     compatible = "nordic,nrf-spim";
     status = "okay";
