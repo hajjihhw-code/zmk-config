@@ -5,8 +5,7 @@
 
 / {
     /* -------------------------------------------------------------------------
-       MAKROS: Verpacken die Bluetooth-Befehle, damit das Hold-Tap-System 
-       sie ohne Kompilerfehler sauber unterscheiden und ausführen kann.
+       MAKROS: Verpacken die Bluetooth-Befehle sauber für das Hold-Tap-System
        ------------------------------------------------------------------------- */
     macros {
         /* Makro für kurzes Tippen: Aktiviert das Bluetooth-Profil 0 */
@@ -16,7 +15,7 @@
             bindings = <&bt BT_SEL 0>;
         };
 
-        /* Makro für langes Halten: Löscht den Bluetooth-Speicher */
+        /* Makro für langes Halten: Löscht den aktuellen Bluetooth-Speicher */
         bt_clr_macro: bt_clr_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
@@ -25,15 +24,17 @@
     };
 
     /* -------------------------------------------------------------------------
-       CUSTOM BEHAVIORS: Hier fusionieren wir die beiden Makros auf eine Taste.
+       CUSTOM BEHAVIORS: Verbindet Halten und Tippen auf einer Taste
        ------------------------------------------------------------------------- */
     behaviors {
         bt_pair_reset: bt_pair_reset {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <0>;
             flavor = "hold-preferred";
-            tapping-term-ms = <500>; /* 500ms halten, damit du nicht versehentlich alles löschst */
-            bindings = <&bt_clr_macro>, <&bt_sel_0_macro>; /* REIHENFOLGE: <HOLD>, <TAP> */
+            tapping-term-ms = <500>; /* 500 Millisekunden halten für Reset */
+            /* FIX: Keine Kommas oder getrennten Klammern. Beide Makros stehen 
+               sauber getrennt durch ein Leerzeichen in einem gemeinsamen Block. */
+            bindings = <&bt_clr_macro &bt_sel_0_macro>; 
         };
     };
 
@@ -52,11 +53,11 @@
                 &kp N4            /* Taste 4 (D3): Schreibt '4' */
                 &kp N5            /* Taste 5 (D4): Schreibt '5' */
                 &tog 1            /* Taste 6 (D7): TOGGLE -> Einmal drücken schaltet Ebene 1 EIN */
-                &bt_pair_reset    /* Taste 7 (D9): KLICK = Pairing starten / HALTEN (0.5s) = BT Speicher löschen */
+                &bt_pair_reset    /* Taste 7 (D9): Tippen = Pairing / Halten = BT Speicher löschen */
             >;
         };
 
-        /* Ebene 1: Deine Funktionsebene (Bleibt aktiv, bis du D7 erneut drückst) */
+        /* Ebene 1: Deine Funktionsebene (Bleibt aktiv, bis D7 erneut gedrückt wird) */
         function_layer {
             bindings = <
                 &kp F1            /* Taste 1 (D0): Zweitfunktion -> Schreibt 'F1' */
@@ -69,5 +70,4 @@
             >;
         };
     };
-};
 };
