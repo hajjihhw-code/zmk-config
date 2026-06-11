@@ -83,6 +83,6 @@
         spi-one-frame = <0x70>;
         spi-zero-frame = <0x40>;
         chain-length = <2>;
-        color-mapping = <0x010203>;
+        color-mapping = <0x01 0x02 0x03>;
     };
 };
