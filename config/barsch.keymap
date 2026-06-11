@@ -2,13 +2,13 @@
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/rgb.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/outputs.h> /* Wichtig für die USB/BLE-Umschaltung */
 
 / {
     keymap {
         compatible = "zmk,keymap";
 
-        /* Ebene 0: Standard-Modus beim Starten 
-           Pins im Array: [D0, D1, D2, D3, D4, D7, D9] */
+        /* Ebene 0: Standard-Modus beim Starten */
         default_layer {
             bindings = <
                 &kp N1          /* Taste 1 (D0): Schreibt '1' */
@@ -16,21 +16,21 @@
                 &kp N3          /* Taste 3 (D2): Schreibt '3' */
                 &kp N4          /* Taste 4 (D3): Schreibt '4' */
                 &kp N5          /* Taste 5 (D4): Schreibt '5' */
-                &tog 1          /* Taste 6 (D7): SWITCH -> Einmal drücken schaltet Ebene 1 EIN */
-                &bt BT_SEL 0    /* Taste 7 (D9): PAIRING -> Einmal drücken aktiviert Bluetooth & sucht PC/Handy */
+                &tog 1          /* Taste 6 (D7): EINMAL DRÜCKEN -> Schaltet Ebene 1 EIN */
+                &bt BT_SEL 0    /* Taste 7 (D9): Bluetooth-Profil 0 */
             >;
         };
 
-        /* Ebene 1: Deine Funktionsebene (Aktiv, nachdem du D7 einmal gedrückt hast) */
+        /* Ebene 1: Funktionsebene */
         function_layer {
             bindings = <
-                &kp F1          /* Taste 1 (D0): Zweitfunktion -> Schreibt 'F1' */
-                &kp F2          /* Taste 2 (D1): Zweitfunktion -> Schreibt 'F2' */
-                &kp F3          /* Taste 3 (D2): Zweitfunktion -> Schreibt 'F3' */
-                &kp F4          /* Taste 4 (D3): Zweitfunktion -> Schreibt 'F4' */
-                &kp F5          /* Taste 5 (D4): Zweitfunktion -> Schreibt 'F5' */
-                &tog 1          /* Taste 6 (D7): SWITCH -> Einmal drücken schaltet Ebene 1 wieder AUS */
-                &bt BT_CLR      /* Taste 7 (D9): RESET -> Löscht die Bluetooth-Verbindung komplett für ein neues Gerät */
+                &out OUT_USB    /* Taste 1 (D0): Zwingt das Board in den USB-Kabel-Modus! */
+                &out OUT_BLE    /* Taste 2 (D1): Schaltet zurück auf Bluetooth-Senden */
+                &kp F3          /* Taste 3 (D2): Schreibt 'F3' */
+                &kp F4          /* Taste 4 (D3): Schreibt 'F4' */
+                &kp F5          /* Taste 5 (D4): Schreibt 'F5' */
+                &tog 1          /* Taste 6 (D7): EINMAL DRÜCKEN -> Schaltet Ebene 1 wieder AUS */
+                &bt BT_CLR      /* Taste 7 (D9): Bluetooth Reset (Löscht alte Verbindungen) */
             >;
         };
     };
